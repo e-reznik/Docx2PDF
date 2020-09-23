@@ -6,7 +6,7 @@
         }
 )
 
-package com.mycompany.docxtopdflow;
+package com.mycompany.docxtopdflow.model;
 
 import javax.xml.bind.annotation.XmlNs;
 import javax.xml.bind.annotation.XmlNsForm;

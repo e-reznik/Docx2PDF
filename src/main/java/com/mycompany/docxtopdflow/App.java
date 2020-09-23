@@ -3,6 +3,7 @@ package com.mycompany.docxtopdflow;
 import com.mycompany.docxtopdflow.model.Document;
 import com.mycompany.docxtopdflow.model.Paragraph;
 import com.mycompany.docxtopdflow.model.Run;
+import com.mycompany.docxtopdflow.model.RunProperties;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -28,14 +29,15 @@ public class App {
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             Document document = (Document) jaxbUnmarshaller.unmarshal(file);
 
-            for (Paragraph p : document.getBody().getParagraphs()) {
-                for (Run r : p.getRuns()) {
-                    if (r.getText() != null && !r.getText().equals("null") && !r.getText().equals("")) {
-                        System.out.println(r.getText());
-                    }
-
-                }
-            }
+//            System.out.println("Stop");
+//            for (Paragraph p : document.getBody().getParagraphs()) {
+//                for (Run r : p.getRuns()) {
+//                    RunProperties rp = r.getRunProperties();
+//                    if (rp != null) {
+//                        System.out.println(rp.isBold());
+//                    }
+//                }
+//            }
         } catch (JAXBException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
