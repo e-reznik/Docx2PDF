@@ -1,6 +1,5 @@
 package docxjavamapper.model.drawing;
 
-import docxjavamapper.model.drawing.graphic.DJMGraphic;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -14,7 +13,9 @@ public class DJMAnchor {
     private DJMPosition positionH;
     @XmlElement(namespace = "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing")
     private DJMPosition positionV;
-    @XmlElement(namespace = "http://schemas.openxmlformats.org/drawingml/2006/main")
-    private DJMGraphic graphic;
+    @XmlElement(namespace = "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing")
+    private DJMExtent extent;
+    @XmlElement(namespace = "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing")
+    private DJMDocPr docPr;
 
 }

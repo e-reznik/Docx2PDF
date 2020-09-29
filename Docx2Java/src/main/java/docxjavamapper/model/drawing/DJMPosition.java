@@ -10,6 +10,6 @@ import lombok.Data;
 public class DJMPosition {
 
     @XmlElement(name = "posOffset", namespace = "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing")
-    private String posOffset;
+    private int posOffset;
 
 }

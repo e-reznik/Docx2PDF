@@ -7,11 +7,11 @@ import lombok.Data;
 
 @Data
 @XmlAccessorType(XmlAccessType.FIELD)
-public class DJMExtent {
+public class DJMDocPr {
 
     @XmlAttribute
-    private int cx;
+    private String name;
     @XmlAttribute
-    private int cy;
+    private String descr;
 
 }
