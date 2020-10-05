@@ -137,33 +137,40 @@ public class Converter {
         if (run.getDrawing() == null) {
             return null;
         }
-        Image image = null;
+        Image image;
         DJMAnchor anchor = run.getDrawing().getAnchor();
 
-        String name = anchor.getDocPr().getName();
-        int posH = anchor.getPositionH().getPosOffset();
-        int posV = anchor.getPositionV().getPosOffset();
-        int cx = anchor.getExtent().getCx();
-        int cy = anchor.getExtent().getCy();
+        String name = anchor.getDocPr().getName(); // file name
+        int posH = anchor.getPositionH().getPosOffset(); // x coordinate
+        int posV = anchor.getPositionV().getPosOffset(); // y coordinate
+        int cx = anchor.getExtent().getCx(); // width
+        int cy = anchor.getExtent().getCy(); // height
 
-        InputStream is = Helper.getImage(docx, name);
-
-        if (is != null) {
-            // English Metric Units
-            final int EMU = 9525;
-
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-            BufferedImage bi = ImageIO.read(is);
-            ImageIO.write(bi, "png", bos);
-            ImageData id = ImageDataFactory.create(bos.toByteArray());
-
-            image = new Image(id);
-            System.out.println("posV: " + posV);
-            image.setFixedPosition(posH / EMU, posV / EMU);
-            image.setWidth(cx / EMU);
-
+        InputStream is = null;
+        try {
+            is = Helper.getImage(docx, name);
+        } catch (Exception ex) {
+            throw new IOException("Error while processing image", ex);
         }
+
+        // English Metric Units
+        final int EMU = 9525;
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        BufferedImage bi = ImageIO.read(is);
+        ImageIO.write(bi, "png", bos);
+        ImageData id = ImageDataFactory.create(bos.toByteArray());
+
+        posH = posH / EMU;
+        posV = posV / EMU;
+        cx = cx / EMU;
+        cy = cy / EMU;
+
+        image = new Image(id);
+        image.setWidth(cx);
+        image.setHeight(cy);
+        image.setMarginTop(posV);
+        image.setMarginLeft(posH);
 
         return image;
     }
