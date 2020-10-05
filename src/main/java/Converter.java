@@ -5,14 +5,19 @@ import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
 import docxjavamapper.DocxJM;
 import docxjavamapper.model.DJMDocument;
 import docxjavamapper.model.DJMParagraph;
 import docxjavamapper.model.DJMRun;
+import docxjavamapper.model.DJMTable;
 import docxjavamapper.model.drawing.DJMAnchor;
+import docxjavamapper.model.table.DJMTableCell;
+import docxjavamapper.model.table.DJMTableRow;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 
@@ -39,8 +44,7 @@ public class Converter {
         try {
             InputStream str = Helper.getDocument(docx);
             DJMDocument djmDoc = mapper.map(str);
-
-//            Helper.getImage(new File(in));
+            
             convert(djmDoc, out);
         } catch (IOException ex) {
             Logger.getLogger(Converter.class.getName()).log(Level.SEVERE, null, ex);
@@ -59,6 +63,10 @@ public class Converter {
 
         djmDoc.getBody().getParagraphs().forEach(djmp -> {
             pdfDoc.add(processParagraph(djmp));
+        });
+
+        djmDoc.getBody().getTables().forEach(djmt -> {
+            pdfDoc.add(processTable(djmt));
         });
 
         pdfDocument.close();
@@ -95,6 +103,25 @@ public class Converter {
         });
 
         return paragraph;
+    }
+
+    private Table processTable(DJMTable djmt) {
+        int numCells = djmt.getTableRows().get(0).getTableCell().size();
+
+        Table table = new Table(numCells);
+        Cell cell;
+
+        for (DJMTableRow r : djmt.getTableRows()) {
+            for (DJMTableCell c : r.getTableCell()) {
+                cell = new Cell();
+                for (DJMParagraph p : c.getParagraph()) {
+                    cell.add(processParagraph(p));
+                }
+                table.addCell(cell);
+            }
+        }
+
+        return table;
     }
 
     private Text formatText(DJMRun djmr) {
