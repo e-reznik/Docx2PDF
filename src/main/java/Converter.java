@@ -44,7 +44,7 @@ public class Converter {
         try {
             InputStream str = Helper.getDocument(docx);
             DJMDocument djmDoc = mapper.map(str);
-            
+
             convert(djmDoc, out);
         } catch (IOException ex) {
             Logger.getLogger(Converter.class.getName()).log(Level.SEVERE, null, ex);
@@ -74,6 +74,12 @@ public class Converter {
         out.close();
     }
 
+    /**
+     * Processes a table.
+     *
+     * @param djmp the paragraph element
+     * @return the processed paragraph
+     */
     private Paragraph processParagraph(DJMParagraph djmp) {
         Paragraph paragraph = new Paragraph();
 
@@ -105,6 +111,12 @@ public class Converter {
         return paragraph;
     }
 
+    /**
+     * Processes a table.
+     *
+     * @param djmt the Table element
+     * @return Formatted table
+     */
     private Table processTable(DJMTable djmt) {
         int numCells = djmt.getTableRows().get(0).getTableCell().size();
 
@@ -124,6 +136,12 @@ public class Converter {
         return table;
     }
 
+    /**
+     * Applies possible text formatting. Currently supported: bold, italic.
+     *
+     * @param djmr corresponding Run
+     * @return formatted text
+     */
     private Text formatText(DJMRun djmr) {
         if (djmr.getText() == null) {
             return new Text("");
@@ -138,6 +156,13 @@ public class Converter {
         return text;
     }
 
+    /**
+     * Returns possible text color.
+     *
+     * @param djmr corresponding Run. The possible color information is stored here.
+     * @param text Text to be colored
+     * @return colored text
+     */
     private Text colorText(DJMRun djmr, Text text) {
         if (djmr.getText() == null) {
             return new Text("");
