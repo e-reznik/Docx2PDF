@@ -153,6 +153,10 @@ public class Converter {
         if (djmr.getRunProperties().isItalic()) {
             text.setItalic();
         }
+        if (djmr.getRunProperties().isUnderline()) {
+            text.setUnderline();
+        }
+
         return text;
     }
 
