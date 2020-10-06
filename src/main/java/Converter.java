@@ -99,7 +99,8 @@ public class Converter {
                     paragraph.add(image);
                 }
             } catch (IOException ex) {
-                // TODO: Show error message in PDF, if image couldn't be processed
+                // TODO: If image couldn't be processed, show error image instead, 
+                text = new Text("[Image could not be processed]");
                 LOGGER.log(Level.SEVERE, "Error while processing image", ex);
             }
 
