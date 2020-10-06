@@ -16,6 +16,8 @@
 - ~~basic shapes~~
 
 # Supported text formatting
-- bold
-- italic
-- colors
+- <strong>bold</strong>
+- <em>italic</em>
+- <ins>underline</ins>
+- ~~strikethrough~~
+- colors &#x1F534; &#x1F535;
