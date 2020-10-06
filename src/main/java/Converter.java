@@ -157,6 +157,9 @@ public class Converter {
         if (djmr.getRunProperties().isUnderline()) {
             text.setUnderline();
         }
+        if (djmr.getRunProperties().isStrike()) {
+            text.setLineThrough();
+        }
 
         return text;
     }
