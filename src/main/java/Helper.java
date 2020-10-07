@@ -1,30 +1,64 @@
 
 import com.itextpdf.kernel.colors.Color;
+import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
 class Helper {
 
     /**
-     * Converts HEX to RGB.
+     * Validates a given color. Valid color formats are: #000080, #fff, #FFFFFF,
+     * red etc.
+     *
+     * @param color the color to validate
+     * @return result
+     */
+    public static boolean validateColor(String color) {
+        if (color != null
+                && (color.length() != 6 && color.length() != 3)) {
+            throw new NumberFormatException(color + " is not a color");
+        }
+        Pattern pattern = Pattern.compile("^(#?[a-f0-9]{6}|#?[a-f0-9]{3}"
+                + "|rgb *\\( *[0-9]{1,3}%? *, *[0-9]{1,3}%? *, *[0-9]{1,3}%? *\\)"
+                + "|rgba *\\( *[0-9]{1,3}%? *, *[0-9]{1,3}%? *, *[0-9]{1,3}%? *, *[0-9]{1,3}%? *\\)"
+                + "|BLACK|BLUE|CYAN|DARK_GRAY|GRAY|GREEN|LIGHT_GRAY|MAGENTA|ORANGE|PINK|RED|WHITE|YELLOW)$",
+                Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(color);
+
+        return matcher.matches();
+    }
+
+    /**
+     * Converts a color from String to RGB. A color can be in HEX format or as a
+     * word (constant). First it will be checked, if that constant is
+     * recognizable by iText. If that's not the case, it should be HEX format,
+     * so it will be parsed.
      *
      * @param hex
      * @return
-     * @throws NumberFormatException if no color is provided (e.g. auto)
      * @throws Exception if an unexpected exception occurs
      */
     public static Color hexToRgb(String hex) throws NumberFormatException, Exception {
-        if (hex != null && hex.length() != 6) {
-            throw new NumberFormatException(hex + " is not a color");
-        }
-        int r = Integer.valueOf(hex.substring(0, 2), 16);
-        int g = Integer.valueOf(hex.substring(2, 4), 16);
-        int b = Integer.valueOf(hex.substring(4, 6), 16);
+        Color rgb;
 
-        Color rgb = new DeviceRgb(r, g, b);
+        /* Checks, if that color exists as constant in iText class */
+        try {
+            Field f = ColorConstants.class.getField(hex.toUpperCase());
+            rgb = (Color) f.get(null);
+        } catch (NoSuchFieldException e) {
+            /* If the color constant doesn't exist, this part will be executed */
+            int r = Integer.valueOf(hex.substring(0, 2), 16);
+            int g = Integer.valueOf(hex.substring(2, 4), 16);
+            int b = Integer.valueOf(hex.substring(4, 6), 16);
+            rgb = new DeviceRgb(r, g, b);
+        }
+
         return rgb;
     }
 
