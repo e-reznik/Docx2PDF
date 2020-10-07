@@ -92,6 +92,9 @@ public class Converter {
             // Text color
             text = colorText(djmr, text);
 
+            // Text highlight
+            text = highlightText(djmr, text);
+
             // Adding images
             try {
                 Image image = extractPictures(djmr);
@@ -167,7 +170,8 @@ public class Converter {
     /**
      * Returns possible text color.
      *
-     * @param djmr corresponding Run. The possible color information is stored here.
+     * @param djmr corresponding Run. The possible color information is stored
+     * here.
      * @param text Text to be colored
      * @return colored text
      */
@@ -175,9 +179,39 @@ public class Converter {
         if (djmr.getText() == null) {
             return new Text("");
         }
+
         try {
-            Color color = Helper.hexToRgb(djmr.getRunProperties().getColor().getValue());
-            text.setFontColor(color);
+            String value = djmr.getRunProperties().getColor().getValue();
+            if (Helper.validateColor(value)) {
+                Color color = Helper.hexToRgb(value);
+                text.setFontColor(color);
+            }
+        } catch (NumberFormatException ex) {
+            LOGGER.log(Level.FINE, ex.toString());
+        } catch (Exception ex) {
+            LOGGER.log(Level.FINE, "Color not found", ex);
+        }
+        return text;
+    }
+
+    /**
+     * Highlights the text.
+     *
+     * @param djmr corresponding Run. The possible color information is stored
+     * @param text Text to be highlighted
+     * @return highlighted text
+     */
+    private Text highlightText(DJMRun djmr, Text text) {
+        if (djmr.getText() == null) {
+            return new Text("");
+        }
+
+        try {
+            String value = djmr.getRunProperties().getHighlight().getValue();
+            if (Helper.validateColor(value)) {
+                Color color = Helper.hexToRgb(value);
+                text.setBackgroundColor(color);
+            }
         } catch (NumberFormatException ex) {
             LOGGER.log(Level.FINE, ex.toString());
         } catch (Exception ex) {
