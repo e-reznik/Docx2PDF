@@ -21,3 +21,4 @@
 - <ins>underline</ins>
 - ~~strikethrough~~
 - colors &#x1F534; &#x1F535;
+- highlighting
