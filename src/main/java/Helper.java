@@ -16,6 +16,8 @@ class Helper {
      * Validates a given color. Valid color formats are: #000080, #fff, #FFFFFF,
      * red etc.
      *
+     * The color constants are taken from the ColorConstants class from iText
+     *
      * @param color the color to validate
      * @return result
      */
@@ -85,6 +87,7 @@ class Helper {
      */
     public static InputStream getImage(File docx, String name) throws IOException {
         ZipFile zipFile = new ZipFile(docx);
+        // TODO: Load images dynamically (extension)
         InputStream is = zipFile.getInputStream(zipFile.getEntry("word/media/" + name.toLowerCase() + ".png"));
         return is;
     }
