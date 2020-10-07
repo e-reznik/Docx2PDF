@@ -20,7 +20,6 @@ import docxjavamapper.model.table.DJMTableCell;
 import docxjavamapper.model.table.DJMTableRow;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -89,6 +88,9 @@ public class Converter {
             // Text formatting
             text = formatText(djmr);
 
+            text = setFontSize(djmr, text);
+
+            // text = setFontFamily(djmr, text);
             // Text color
             text = colorText(djmr, text);
 
@@ -167,6 +169,36 @@ public class Converter {
         return text;
     }
 
+    private Text setFontSize(DJMRun djmr, Text text) {
+        if (djmr.getText() == null) {
+            return new Text("");
+        }
+
+        try {
+            float fontSize = djmr.getRunProperties().getFontSize().getValue();
+            text.setFontSize(fontSize);
+        } catch (NullPointerException ex) {
+
+        }
+
+        return text;
+    }
+
+    // TODO: FontFamily
+    /*
+    private Text setFontFamily(DJMRun djmr, Text text) throws IOException {
+        if (djmr.getText() == null) {
+            return new Text("");
+        }
+        // https://kb.itextpdf.com/home/it7kb/examples/itext-7-building-blocks-chapter-1-pdffont-examples
+        try {
+
+        } catch (NullPointerException ex) {
+
+        }
+
+        return text;
+    }*/
     /**
      * Returns possible text color.
      *
