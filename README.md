@@ -19,6 +19,7 @@ Converter app = new Converter(docIn, docOut, fontsPath);
 ## Supported text formatting
 - Font family
 - Font size
+- text alignment
 - <strong>bold</strong>
 - <em>italic</em>
 - <ins>underline</ins>
@@ -30,7 +31,6 @@ Converter app = new Converter(docIn, docOut, fontsPath);
 
 ## Coming soon...
 - lists
-- text alignment
 - hyperlinks
 - background color
 - headings
