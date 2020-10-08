@@ -48,9 +48,16 @@ public class Converter {
      * @param in
      * @param out
      * @param fontsFolder path to the folder with custom fonts
+     * @throws java.io.FileNotFoundException if the Docx file doesn't exist
      */
-    public Converter(String in, String out, String fontsFolder) {
+    public Converter(String in, String out, String fontsFolder) throws FileNotFoundException {
         docx = new File(in);
+        /* Checks whether the provided Docx file exist */
+        if (!docx.exists() || docx.isDirectory()) {
+            throw new FileNotFoundException("The Docx document doesn't exist: " + in);
+        }
+
+        /* Checks if a folder for custom fonts has been provided */
         if (fontsFolder != null && !fontsFolder.trim().isEmpty()) {
             this.fontsFolder = fontsFolder;
         } else {
@@ -81,7 +88,7 @@ public class Converter {
             pdfDoc.add(processParagraph(djmp));
         });
 
-        /* Checks, if any tables exist */
+        /* Checks, whether any tables exist */
         if (djmDoc.getBody().getTables() != null) {
             djmDoc.getBody().getTables().forEach(djmt -> {
                 pdfDoc.add(processTable(djmt));
@@ -94,7 +101,7 @@ public class Converter {
     }
 
     /**
-     * Processes a table.
+     * Processes a paragraph.
      *
      * @param djmp the paragraph element
      * @return the processed paragraph
@@ -136,7 +143,7 @@ public class Converter {
      * Processes a table.
      *
      * @param djmt the Table element
-     * @return Formatted table
+     * @return processed table
      */
     private Table processTable(DJMTable djmt) {
         int numCells = djmt.getTableRows().get(0).getTableCell().size();
@@ -158,7 +165,7 @@ public class Converter {
     }
 
     /**
-     * Applies possible text formatting. Currently supported: bold, italic.
+     * Applies possible text formatting.
      *
      * @param djmr corresponding Run
      * @return formatted text
@@ -168,15 +175,19 @@ public class Converter {
             return new Text("");
         }
         Text text = new Text(djmr.getText());
+        /* Bold */
         if (djmr.getRunProperties().isBold()) {
             text.setBold();
         }
+        /* Italic */
         if (djmr.getRunProperties().isItalic()) {
             text.setItalic();
         }
+        /* Underline */
         if (djmr.getRunProperties().isUnderline()) {
             text.setUnderline();
         }
+        /* Strike-through */
         if (djmr.getRunProperties().isStrike()) {
             text.setLineThrough();
         }
@@ -186,14 +197,14 @@ public class Converter {
 
     /**
      * Sets the font size. In OOXML the font size is specified in half-points.
-     * iText needs the size in points, so it should be devided by 2.
+     * iText needs the size in points, so it should be divided by 2.
      *
      * @param djmr
      * @param text
      * @return
      */
     private Text setFontSize(DJMRun djmr, Text text) {
-        if (djmr.getText() == null) {
+        if (djmr.getText() == null || djmr.getRunProperties().getFontSize() == null) {
             return text;
         }
 
@@ -242,20 +253,16 @@ public class Converter {
      * @return colored text
      */
     private Text colorText(DJMRun djmr, Text text) {
-        if (djmr.getText() == null) {
-            return new Text("");
+        if (djmr.getText() == null || djmr.getRunProperties().getColor() == null) {
+            return text;
         }
 
         try {
             String value = djmr.getRunProperties().getColor().getValue();
-            if (Helper.validateColor(value)) {
-                Color color = Helper.hexToRgb(value);
-                text.setFontColor(color);
-            }
+            Color color = Helper.convertColor(value);
+            text.setFontColor(color);
         } catch (NumberFormatException ex) {
-            LOGGER.log(Level.FINE, ex.toString());
-        } catch (Exception ex) {
-            LOGGER.log(Level.FINE, "Color not found", ex);
+            LOGGER.log(Level.WARNING, ex.toString());
         }
         return text;
     }
@@ -268,26 +275,23 @@ public class Converter {
      * @return highlighted text
      */
     private Text highlightText(DJMRun djmr, Text text) {
-        if (djmr.getText() == null) {
-            return new Text("");
+        if (djmr.getText() == null || djmr.getRunProperties().getHighlight() == null) {
+            return text;
         }
 
         try {
             String value = djmr.getRunProperties().getHighlight().getValue();
-            if (Helper.validateColor(value)) {
-                Color color = Helper.hexToRgb(value);
-                text.setBackgroundColor(color);
-            }
+            Color color = Helper.convertColor(value);
+            text.setBackgroundColor(color);
         } catch (NumberFormatException ex) {
-            LOGGER.log(Level.FINE, ex.toString());
-        } catch (Exception ex) {
-            LOGGER.log(Level.FINE, "Color not found", ex);
+            LOGGER.log(Level.WARNING, ex.toString());
         }
         return text;
     }
 
     /**
-     * Extracts possible images.
+     * Extracts possible images. The image needs to be anchored to a paragraph,
+     * in order to be positioned correctly.
      *
      * @param run
      * @return Extracted image
@@ -327,8 +331,8 @@ public class Converter {
         cy = cy / EMU;
 
         image = new Image(id);
-        image.setWidth(cx);
-        image.setHeight(cy);
+        image.setWidth(cx / 2);
+        image.setHeight(cy / 2);
         image.setMarginTop(posV);
         image.setMarginLeft(posH);
 

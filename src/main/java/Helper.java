@@ -3,7 +3,6 @@ import com.itextpdf.io.font.FontProgram;
 import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.io.font.constants.StandardFontFamilies;
 import com.itextpdf.kernel.colors.Color;
-import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import java.io.File;
 import java.io.IOException;
@@ -18,58 +17,6 @@ import java.util.zip.ZipFile;
 class Helper {
 
     private final static Logger LOGGER = Logger.getLogger(Helper.class.getName());
-
-    /**
-     * Validates a given color. Valid color formats are: #000080, #fff, #FFFFFF,
-     * red etc.
-     *
-     * The color constants are taken from the ColorConstants class from iText
-     *
-     * @param color the color to validate
-     * @return result
-     */
-    public static boolean validateColor(String color) {
-        if (color != null
-                && (color.length() != 6 && color.length() != 3)) {
-            throw new NumberFormatException(color + " is not a color");
-        }
-        Pattern pattern = Pattern.compile("^(#?[a-f0-9]{6}|#?[a-f0-9]{3}"
-                + "|rgb *\\( *[0-9]{1,3}%? *, *[0-9]{1,3}%? *, *[0-9]{1,3}%? *\\)"
-                + "|rgba *\\( *[0-9]{1,3}%? *, *[0-9]{1,3}%? *, *[0-9]{1,3}%? *, *[0-9]{1,3}%? *\\)"
-                + "|BLACK|BLUE|CYAN|DARK_GRAY|GRAY|GREEN|LIGHT_GRAY|MAGENTA|ORANGE|PINK|RED|WHITE|YELLOW)$",
-                Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(color);
-
-        return matcher.matches();
-    }
-
-    /**
-     * Converts a color from String to RGB. A color can be in HEX format or as a
-     * word (constant). First it will be checked, if that constant is
-     * recognizable by iText. If that's not the case, it should be HEX format,
-     * so it will be parsed.
-     *
-     * @param hex
-     * @return
-     * @throws Exception if an unexpected exception occurs
-     */
-    public static Color hexToRgb(String hex) throws NumberFormatException, Exception {
-        Color rgb;
-
-        /* Checks, if that color exists as constant in iText class */
-        try {
-            Field f = ColorConstants.class.getField(hex.toUpperCase());
-            rgb = (Color) f.get(null);
-        } catch (NoSuchFieldException e) {
-            /* If the color constant doesn't exist, this part will be executed */
-            int r = Integer.valueOf(hex.substring(0, 2), 16);
-            int g = Integer.valueOf(hex.substring(2, 4), 16);
-            int b = Integer.valueOf(hex.substring(4, 6), 16);
-            rgb = new DeviceRgb(r, g, b);
-        }
-
-        return rgb;
-    }
 
     /**
      * Returns the stream to a document.xml from the DOCX-archive.
@@ -113,14 +60,69 @@ class Helper {
         try {
             fontProgram = FontProgramFactory.createFont(fontPath);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Font " + fontValue + " could not be found in " + fontsFolder);
+            LOGGER.log(Level.WARNING, "Font \"" + fontValue + "\" could not be found in " + fontsFolder);
             try {
                 fontProgram = FontProgramFactory.createFont(StandardFontFamilies.HELVETICA);
             } catch (IOException ex2) {
-                LOGGER.log(Level.WARNING, "Neither the required Font " + fontValue + ", nor the standard font Helvetica could be loaded.");
+                LOGGER.log(Level.WARNING, "Neither the required Font \"" + fontValue + "\", nor the standard font Helvetica could be loaded.");
             }
         }
 
         return fontProgram;
+    }
+
+    /**
+     * Converts a color from String to RGB. A color can be in HEX format or as a
+     * word (constant). First it will be checked, if that constant is
+     * recognizable by iText. If that's not the case, it should be HEX format,
+     * so it will be parsed.
+     *
+     * @param hex
+     * @return
+     * @throws Exception if an unexpected exception occurs
+     */
+    public static Color convertColor(String hex) {
+        java.awt.Color colorAwt = null;
+        Color color = null;
+
+        /* Checks whether that color exists as constant in iText class */
+        try {
+            Field f = java.awt.Color.class.getField(hex);
+            colorAwt = (java.awt.Color) f.get(null);
+            color = new DeviceRgb(colorAwt);
+        } catch (NoSuchFieldException e) {
+            validateHexColor(hex);
+
+            /* If the color constant doesn't exist, this part will be executed */
+            int r = Integer.valueOf(hex.substring(0, 2), 16);
+            int g = Integer.valueOf(hex.substring(2, 4), 16);
+            int b = Integer.valueOf(hex.substring(4, 6), 16);
+            color = new DeviceRgb(r, g, b);
+        } catch (IllegalArgumentException | IllegalAccessException ex) {
+            Logger.getLogger(Helper.class.getName()).log(Level.INFO, null, ex);
+        }
+
+        return color;
+    }
+
+    /**
+     * Validates a given color. Valid color formats are: #000080, #fff, #FFFFFF,
+     * red etc.
+     *
+     * @param color the color to validate
+     * @return result
+     */
+    private static boolean validateHexColor(String color) {
+        if (color != null) {
+            Pattern pattern = Pattern.compile("^#?(?:[0-9a-fA-F]{3}){1,2}$");
+            Matcher matcher = pattern.matcher(color);
+
+            if (matcher.matches()) {
+                return true;
+            } else {
+                throw new NumberFormatException(color + " could not be recognized as a valid color");
+            }
+        }
+        return false;
     }
 }
