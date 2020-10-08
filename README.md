@@ -37,14 +37,12 @@ Converter app = new Converter(docIn, docOut, fontsPath);
 - basic shapes
 
 # Detailed exception handling
-```
+```java
 Oct 08, 2020 4:33:04 PM Main main
 SEVERE: File not found
 java.io.FileNotFoundException: The Docx document doesn't exist: /home/user/docs/examaple.docx
-
 Oct 08, 2020 4:28:44 PM Helper loadFont
 WARNING: Font "Times New Roman" could not be found in /home/user/docs/fonts/
-
 Oct 08, 2020 4:28:44 PM Converter highlightText
 WARNING: java.lang.NumberFormatException: darkCyan could not be recognized as a valid color
 ```
