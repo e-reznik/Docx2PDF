@@ -1,5 +1,4 @@
 # Example usage
-   
 ```java
 String docIn = "/home/user/docs/sample.docx";
 String docOut = "/home/user/docs/out.pdf";
@@ -17,14 +16,6 @@ Converter app = new Converter(docIn, docOut, fontsPath);
 - images
 - tables
 
-## Coming soon
-- lists
-- text alignment
-- hyperlinks
-- background color
-- headings
-- basic shapes
-
 ## Supported text formatting
 - Font family
 - Font size
@@ -35,7 +26,17 @@ Converter app = new Converter(docIn, docOut, fontsPath);
 - colors &#x1F534; &#x1F535;
 - highlighting
 
-# Detailed Exception Handling
+---
+
+## Coming soon...
+- lists
+- text alignment
+- hyperlinks
+- background color
+- headings
+- basic shapes
+
+# Detailed exception handling
 ```
 Oct 08, 2020 4:33:04 PM Main main
 SEVERE: File not found
