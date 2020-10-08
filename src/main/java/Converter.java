@@ -81,9 +81,12 @@ public class Converter {
             pdfDoc.add(processParagraph(djmp));
         });
 
-        djmDoc.getBody().getTables().forEach(djmt -> {
-            pdfDoc.add(processTable(djmt));
-        });
+        /* Checks, if any tables exist */
+        if (djmDoc.getBody().getTables() != null) {
+            djmDoc.getBody().getTables().forEach(djmt -> {
+                pdfDoc.add(processTable(djmt));
+            });
+        }
 
         pdfDocument.close();
         pdfDoc.close();
@@ -182,7 +185,8 @@ public class Converter {
     }
 
     /**
-     * Sets the font size
+     * Sets the font size. In OOXML the font size is specified in half-points.
+     * iText needs the size in points, so it should be devided by 2.
      *
      * @param djmr
      * @param text
@@ -195,7 +199,7 @@ public class Converter {
 
         try {
             float fontSize = djmr.getRunProperties().getFontSize().getValue();
-            text.setFontSize(fontSize);
+            text.setFontSize(fontSize / 2);
         } catch (NullPointerException ex) {
 
         }
