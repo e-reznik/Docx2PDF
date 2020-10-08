@@ -14,6 +14,7 @@ import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
+import com.itextpdf.layout.property.TextAlignment;
 import docxjavamapper.DocxJM;
 import docxjavamapper.model.DJMDocument;
 import docxjavamapper.model.DJMParagraph;
@@ -136,6 +137,10 @@ public class Converter {
             paragraph.add(text);
         });
 
+        /* Apply text alignment */
+        if (djmp.getParagraphProperties().getAlignment() != null) {
+            paragraph.setTextAlignment(TextAlignment.valueOf(djmp.getParagraphProperties().getAlignment().getValue().toUpperCase()));
+        }
         return paragraph;
     }
 
