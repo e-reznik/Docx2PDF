@@ -1,4 +1,7 @@
 
+import com.itextpdf.io.font.FontProgram;
+import com.itextpdf.io.font.FontProgramFactory;
+import com.itextpdf.io.font.constants.StandardFontFamilies;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -6,11 +9,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
 class Helper {
+
+    private final static Logger LOGGER = Logger.getLogger(Helper.class.getName());
 
     /**
      * Validates a given color. Valid color formats are: #000080, #fff, #FFFFFF,
@@ -90,5 +97,30 @@ class Helper {
         // TODO: Load images dynamically (extension)
         InputStream is = zipFile.getInputStream(zipFile.getEntry("word/media/" + name.toLowerCase() + ".png"));
         return is;
+    }
+
+    /**
+     * Loads the required font as TTF in the specified folder. If the required
+     * font can't be find, a standard font will be used.
+     *
+     * @param fontValue name of the required font (case sensitive)
+     * @param fontsFolder path of the folder with the required font(s)
+     * @return FontProgram, an iText class for specifying required fonts
+     */
+    public static FontProgram loadFont(String fontValue, String fontsFolder) {
+        FontProgram fontProgram = null;
+        String fontPath = fontsFolder.concat(fontValue).concat(".ttf");
+        try {
+            fontProgram = FontProgramFactory.createFont(fontPath);
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "Font " + fontValue + " could not be found in " + fontsFolder);
+            try {
+                fontProgram = FontProgramFactory.createFont(StandardFontFamilies.HELVETICA);
+            } catch (IOException ex2) {
+                LOGGER.log(Level.WARNING, "Neither the required Font " + fontValue + ", nor the standard font Helvetica could be loaded.");
+            }
+        }
+
+        return fontProgram;
     }
 }

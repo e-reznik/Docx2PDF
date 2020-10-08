@@ -1,7 +1,11 @@
 
+import com.itextpdf.io.font.FontProgram;
+import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.Color;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
@@ -34,23 +38,36 @@ public class Converter {
 
     private final static Logger LOGGER = Logger.getLogger(Converter.class.getName());
     private final File docx;
+    private final String fontsFolder;
 
     DocxJM mapper = new DocxJM();
 
-    public Converter(String in, String out) {
+    /**
+     * Starts the converting process with a specified folder with custom fonts
+     *
+     * @param in
+     * @param out
+     * @param fontsFolder path to the folder with custom fonts
+     */
+    public Converter(String in, String out, String fontsFolder) {
         docx = new File(in);
+        if (fontsFolder != null && !fontsFolder.trim().isEmpty()) {
+            this.fontsFolder = fontsFolder;
+        } else {
+            this.fontsFolder = "";
+        }
 
         try {
             InputStream str = Helper.getDocument(docx);
             DJMDocument djmDoc = mapper.map(str);
 
-            convert(djmDoc, out);
+            convert(djmDoc, out, fontsFolder);
         } catch (IOException ex) {
             Logger.getLogger(Converter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public void convert(DJMDocument djmDoc, String docOut) throws FileNotFoundException, IOException {
+    public void convert(DJMDocument djmDoc, String docOut, String fontsFolder) throws FileNotFoundException, IOException {
         OutputStream out;
         out = new FileOutputStream(new File(docOut));
         PdfDocument pdfDocument;
@@ -87,14 +104,9 @@ public class Converter {
 
             // Text formatting
             text = formatText(djmr);
-
             text = setFontSize(djmr, text);
-
-            // text = setFontFamily(djmr, text);
-            // Text color
+            text = setFontFamily(djmr, text);
             text = colorText(djmr, text);
-
-            // Text highlight
             text = highlightText(djmr, text);
 
             // Adding images
@@ -169,9 +181,16 @@ public class Converter {
         return text;
     }
 
+    /**
+     * Sets the font size
+     *
+     * @param djmr
+     * @param text
+     * @return
+     */
     private Text setFontSize(DJMRun djmr, Text text) {
         if (djmr.getText() == null) {
-            return new Text("");
+            return text;
         }
 
         try {
@@ -184,21 +203,32 @@ public class Converter {
         return text;
     }
 
-    // TODO: FontFamily
-    /*
-    private Text setFontFamily(DJMRun djmr, Text text) throws IOException {
-        if (djmr.getText() == null) {
-            return new Text("");
+    /**
+     * Sets the font family. The font file should be provided in a TTF format in
+     * a font folder. The font name is case sensitive, i.e. it should have
+     * exactly the same name like in the DOCX file. Otherwise a standard font
+     * (Helvetica) will be used.
+     *
+     * @param djmr
+     * @param text
+     * @return
+     */
+    private Text setFontFamily(DJMRun djmr, Text text) {
+        if (djmr.getText() == null || djmr.getRunProperties().getFont() == null) {
+            return text;
         }
-        // https://kb.itextpdf.com/home/it7kb/examples/itext-7-building-blocks-chapter-1-pdffont-examples
-        try {
 
-        } catch (NullPointerException ex) {
-
+        if (!fontsFolder.isEmpty()) {
+            PdfFont font;
+            String fontValue = djmr.getRunProperties().getFont().getValue();
+            FontProgram fontProgram = Helper.loadFont(fontValue, fontsFolder);
+            font = PdfFontFactory.createFont(fontProgram, PdfEncodings.UTF8, true);
+            text.setFont(font);
         }
 
         return text;
-    }*/
+    }
+
     /**
      * Returns possible text color.
      *
