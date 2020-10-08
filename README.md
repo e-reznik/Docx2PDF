@@ -18,6 +18,7 @@ Converter app = new Converter(docIn, docOut, fontsPath);
 - tables
 - ~~lists~~
 - ~~text alignment~~
+- ~~hyperlinks~~
 - ~~background color~~
 - ~~headings~~
 - ~~basic shapes~~
