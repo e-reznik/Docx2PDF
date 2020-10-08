@@ -1,13 +1,15 @@
 # Example usage
    
-    String docIn = "/home/user/docs/sample.docx";
-    String docOut = "/home/user/docs/out.pdf";
-    String fontsPath = "/home/user/docs/fonts/";
+```java
+String docIn = "/home/user/docs/sample.docx";
+String docOut = "/home/user/docs/out.pdf";
+String fontsPath = "/home/user/docs/fonts/";
 
-    Converter app = new Converter(docIn, docOut, fontsPath);
-    
-    // fontsPath can be null. In this case, a standard font will be used: Helvetica
-    // Converter app = new Converter(docIn, docOut, null);
+Converter app = new Converter(docIn, docOut, fontsPath);
+
+// fontsPath can be null. In this case, a standard font will be used: Helvetica
+// Converter app = new Converter(docIn, docOut, null);
+```
 
 # Supported elements
 - text
