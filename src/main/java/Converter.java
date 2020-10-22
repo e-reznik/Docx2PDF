@@ -3,6 +3,7 @@ import com.itextpdf.io.font.FontProgram;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.PdfException;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
@@ -21,6 +22,7 @@ import docxjavamapper.model.DJMParagraph;
 import docxjavamapper.model.DJMRun;
 import docxjavamapper.model.DJMTable;
 import docxjavamapper.model.drawing.DJMAnchor;
+import docxjavamapper.model.interfaces.BodyElement;
 import docxjavamapper.model.table.DJMTableCell;
 import docxjavamapper.model.table.DJMTableRow;
 import java.awt.image.BufferedImage;
@@ -85,20 +87,23 @@ public class Converter {
         pdfDocument = new PdfDocument(writer);
         pdfDoc = new Document(pdfDocument);
 
-        djmDoc.getBody().getParagraphs().forEach(djmp -> {
-            pdfDoc.add(processParagraph(djmp));
-        });
-
-        /* Checks, whether any tables exist */
-        if (djmDoc.getBody().getTables() != null) {
-            djmDoc.getBody().getTables().forEach(djmt -> {
+        for (BodyElement be : djmDoc.getBody().getBodyElements()) {
+            if (be instanceof DJMParagraph) {
+                DJMParagraph djmp = (DJMParagraph) be;
+                pdfDoc.add(processParagraph(djmp));
+            } else if (be instanceof DJMTable) {
+                DJMTable djmt = (DJMTable) be;
                 pdfDoc.add(processTable(djmt));
-            });
+            }
         }
 
-        pdfDocument.close();
-        pdfDoc.close();
-        out.close();
+        try {
+            pdfDocument.close();
+            pdfDoc.close();
+            out.close();
+        } catch (PdfException | IOException ex) {
+            LOGGER.log(Level.SEVERE, "Error while closing the PDF", ex);
+        }
     }
 
     /**
@@ -141,6 +146,13 @@ public class Converter {
         if (djmp.getParagraphProperties().getAlignment() != null) {
             paragraph.setTextAlignment(TextAlignment.valueOf(djmp.getParagraphProperties().getAlignment().getValue().toUpperCase()));
         }
+
+//        paragraph.add(createList());
+//
+//        var link = new Link("text",
+//                PdfAction.createURI("http://pages.itextpdf.com/ebook-stackoverflow-questions.html"));
+//
+//        paragraph.add(link);
         return paragraph;
     }
 
@@ -217,7 +229,7 @@ public class Converter {
             float fontSize = djmr.getRunProperties().getFontSize().getValue();
             text.setFontSize(fontSize / 2);
         } catch (NullPointerException ex) {
-
+            // TODO
         }
 
         return text;
@@ -294,6 +306,16 @@ public class Converter {
         return text;
     }
 
+//    private List createList() {
+//        List list = new List();
+//
+//        list.setListSymbol(ListNumberingType.DECIMAL);
+//
+//        list.add("hallo");
+//        list.add("test");
+//
+//        return list;
+//    }
     /**
      * Extracts possible images. The image needs to be anchored to a paragraph,
      * in order to be positioned correctly.
