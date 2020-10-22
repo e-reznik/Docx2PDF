@@ -22,7 +22,7 @@ import docxjavamapper.model.DJMParagraph;
 import docxjavamapper.model.DJMRun;
 import docxjavamapper.model.DJMTable;
 import docxjavamapper.model.drawing.DJMAnchor;
-import docxjavamapper.model.interfaces.BodyElement;
+import docxjavamapper.model.interfaces.iBodyElement;
 import docxjavamapper.model.table.DJMTableCell;
 import docxjavamapper.model.table.DJMTableRow;
 import java.awt.image.BufferedImage;
@@ -87,7 +87,7 @@ public class Converter {
         pdfDocument = new PdfDocument(writer);
         pdfDoc = new Document(pdfDocument);
 
-        for (BodyElement be : djmDoc.getBody().getBodyElements()) {
+        for (iBodyElement be : djmDoc.getBody().getBodyElements()) {
             if (be instanceof DJMParagraph) {
                 DJMParagraph djmp = (DJMParagraph) be;
                 pdfDoc.add(processParagraph(djmp));
