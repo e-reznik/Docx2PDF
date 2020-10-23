@@ -85,21 +85,26 @@ class Helper {
         java.awt.Color colorAwt = null;
         Color color = null;
 
-        /* Checks whether that color exists as constant in iText class */
-        try {
-            Field f = java.awt.Color.class.getField(hex);
-            colorAwt = (java.awt.Color) f.get(null);
-            color = new DeviceRgb(colorAwt);
-        } catch (NoSuchFieldException e) {
-            validateHexColor(hex);
+        /* Color "auto" will be treated as black */
+        if (hex.equals("auto")) {
+            color = new DeviceRgb(colorAwt.black);
+        } else {
+            /* Checks whether that color exists as constant in iText class */
+            try {
+                Field f = java.awt.Color.class.getField(hex);
+                colorAwt = (java.awt.Color) f.get(null);
+                color = new DeviceRgb(colorAwt);
+            } catch (NoSuchFieldException e) {
+                validateHexColor(hex);
 
-            /* If the color constant doesn't exist, this part will be executed */
-            int r = Integer.valueOf(hex.substring(0, 2), 16);
-            int g = Integer.valueOf(hex.substring(2, 4), 16);
-            int b = Integer.valueOf(hex.substring(4, 6), 16);
-            color = new DeviceRgb(r, g, b);
-        } catch (IllegalArgumentException | IllegalAccessException ex) {
-            Logger.getLogger(Helper.class.getName()).log(Level.INFO, null, ex);
+                /* If the color constant doesn't exist, this part will be executed */
+                int r = Integer.valueOf(hex.substring(0, 2), 16);
+                int g = Integer.valueOf(hex.substring(2, 4), 16);
+                int b = Integer.valueOf(hex.substring(4, 6), 16);
+                color = new DeviceRgb(r, g, b);
+            } catch (IllegalArgumentException | IllegalAccessException ex) {
+                Logger.getLogger(Helper.class.getName()).log(Level.INFO, null, ex);
+            }
         }
 
         return color;
