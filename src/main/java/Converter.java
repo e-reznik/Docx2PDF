@@ -11,13 +11,14 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.ILeafElement;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
-import com.itextpdf.layout.property.TextAlignment;
 import docxjavamapper.DocxJM;
 import docxjavamapper.model.DJMDocument;
+import docxjavamapper.model.DJMHyperlink;
 import docxjavamapper.model.DJMParagraph;
 import docxjavamapper.model.DJMRun;
 import docxjavamapper.model.DJMTable;
@@ -33,6 +34,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -55,7 +58,7 @@ public class Converter {
      */
     public Converter(String in, String out, String fontsFolder) throws FileNotFoundException {
         docx = new File(in);
-        /* Checks whether the provided Docx file exist */
+        /* Checks whether the provided Docx file exists */
         if (!docx.exists() || docx.isDirectory()) {
             throw new FileNotFoundException("The Docx document doesn't exist: " + in);
         }
@@ -115,45 +118,47 @@ public class Converter {
     private Paragraph processParagraph(DJMParagraph djmp) {
         Paragraph paragraph = new Paragraph();
 
-        djmp.getRuns().stream().map(djmr -> {
-            Text text;
-
-            // Text formatting
-            text = formatText(djmr);
-            text = setFontSize(djmr, text);
-            text = setFontFamily(djmr, text);
-            text = colorText(djmr, text);
-            text = highlightText(djmr, text);
-
-            // Adding images
-            try {
-                Image image = extractPictures(djmr);
-                if (image != null) {
-                    paragraph.add(image);
-                }
-            } catch (IOException ex) {
-                // TODO: If image couldn't be processed, show error image instead, 
-                text = new Text("[Image could not be processed]");
-                LOGGER.log(Level.SEVERE, "Error while processing image", ex);
+        djmp.getParagraphElements().forEach(pe -> {
+            if (pe instanceof DJMRun) {
+                DJMRun djmr = (DJMRun) pe;
+                processRun(djmr).forEach(le -> {
+                    paragraph.add(le);
+                });
+            } else if (pe instanceof DJMHyperlink) {
+                DJMHyperlink djmh = (DJMHyperlink) pe;
+                // TODO: processHyperlink()
             }
-
-            return text;
-        }).forEachOrdered(text -> {
-            paragraph.add(text);
         });
 
-        /* Apply text alignment */
-        if (djmp.getParagraphProperties().getAlignment() != null) {
-            paragraph.setTextAlignment(TextAlignment.valueOf(djmp.getParagraphProperties().getAlignment().getValue().toUpperCase()));
+        return paragraph;
+    }
+
+    private List<ILeafElement> processRun(DJMRun djmr) {
+        List<ILeafElement> leafElements = new LinkedList<>();
+
+        Text text;
+
+        // Text formatting
+        text = formatText(djmr);
+        text = setFontSize(djmr, text);
+        text = setFontFamily(djmr, text);
+        text = colorText(djmr, text);
+        text = highlightText(djmr, text);
+
+        // Adding images
+        try {
+            Image image = extractPictures(djmr);
+            if (image != null) {
+                leafElements.add(image);
+            }
+        } catch (IOException ex) {
+            // TODO: If image couldn't be processed, show error image instead, 
+            text = new Text("[Image could not be processed]");
+            LOGGER.log(Level.SEVERE, "Error while processing image", ex);
         }
 
-//        paragraph.add(createList());
-//
-//        var link = new Link("text",
-//                PdfAction.createURI("http://pages.itextpdf.com/ebook-stackoverflow-questions.html"));
-//
-//        paragraph.add(link);
-        return paragraph;
+        leafElements.add(text);
+        return leafElements;
     }
 
     /**
@@ -253,9 +258,16 @@ public class Converter {
         if (!fontsFolder.isEmpty()) {
             PdfFont font;
             String fontValue = djmr.getRunProperties().getFont().getValue();
-            FontProgram fontProgram = Helper.loadFont(fontValue, fontsFolder);
-            font = PdfFontFactory.createFont(fontProgram, PdfEncodings.UTF8, true);
-            text.setFont(font);
+            FontProgram fontProgram;
+
+            try {
+                fontProgram = Helper.loadFont(fontValue, fontsFolder);
+                font = PdfFontFactory.createFont(fontProgram, PdfEncodings.UTF8, true);
+                text.setFont(font);
+            } catch (NullPointerException ex) {
+                LOGGER.log(Level.WARNING, "Error while reading the font", ex);
+            }
+
         }
 
         return text;
@@ -306,16 +318,6 @@ public class Converter {
         return text;
     }
 
-//    private List createList() {
-//        List list = new List();
-//
-//        list.setListSymbol(ListNumberingType.DECIMAL);
-//
-//        list.add("hallo");
-//        list.add("test");
-//
-//        return list;
-//    }
     /**
      * Extracts possible images. The image needs to be anchored to a paragraph,
      * in order to be positioned correctly.
@@ -329,6 +331,7 @@ public class Converter {
             return null;
         }
         Image image;
+        // TODO: Check anchor
         DJMAnchor anchor = run.getDrawing().getAnchor();
 
         String name = anchor.getDocPr().getName(); // file name
