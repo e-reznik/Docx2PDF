@@ -29,13 +29,13 @@ Converter app = new Converter(docIn, docOut, fontsPath);
 - <ins>underline</ins>
 - ~~strikethrough~~
 - colors &#x1F534; &#x1F535;
+- [hyperlinks](https://github.com/e-reznik/Docx2PDF2/)
 - highlighting
 
 ---
 
 ## Coming soon...
 - lists
-- hyperlinks
 - background color
 - headings
 - basic shapes
