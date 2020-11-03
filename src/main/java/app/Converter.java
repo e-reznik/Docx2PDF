@@ -128,7 +128,9 @@ public class Converter {
                 });
             } else if (pe instanceof DJMHyperlink) {
                 DJMHyperlink djmh = (DJMHyperlink) pe;
-                paragraph.add(processHyperlink(djmh));
+                paragraph.add(getTarget(djmh));
+
+//               Text processRun(djmh.getRun())
             }
         });
 
@@ -375,14 +377,21 @@ public class Converter {
      * Processes a hyperlink.
      *
      * @param djmh
-     * @return
+     * @return iText Link
      */
-    private Link processHyperlink(DJMHyperlink djmh) {
+    private Link getTarget(DJMHyperlink djmh) {
         String id = djmh.getId();
+        DJMRun djmr = djmh.getRun();
         Link link = null;
         try {
             String target = Helper.getHyperlink(docx, id);
             link = new Link(djmh.getRun().getText(), PdfAction.createURI(target));
+
+            formatText(djmr);
+            setFontSize(djmr, link);
+            setFontFamily(djmr, link);
+            colorText(djmr, link);
+            highlightText(djmr, link);
         } catch (IOException ex) {
             Logger.getLogger(Converter.class.getName()).log(Level.SEVERE, null, ex);
         }
