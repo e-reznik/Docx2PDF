@@ -5,6 +5,8 @@ import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.io.font.constants.StandardFontFamilies;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
+import docxjavamapper.DocxJM;
+import docxjavamapper.model.relationships.DJMRelationships;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +16,9 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 class Helper {
 
@@ -30,6 +35,38 @@ class Helper {
         ZipFile zipFile = new ZipFile(docx);
         InputStream is = zipFile.getInputStream(zipFile.getEntry("word/document.xml"));
         return is;
+    }
+
+    /**
+     * Parses document.xml_rels file inside of the word/_rels directory of the
+     * Docx archive. The relationships between some ids (key) and their values
+     * are stored there. In this case the target URL of the hyperlink will be
+     * found by id.
+     *
+     * @param docx
+     * @param id
+     * @return
+     * @throws IOException
+     */
+    public static String getHyperlink(File docx, String id) throws IOException {
+        ZipFile zipFile = new ZipFile(docx);
+        InputStream is = zipFile.getInputStream(zipFile.getEntry("word/_rels/document.xml.rels"));
+
+        DJMRelationships djmRels = null;
+
+        JAXBContext jaxbContext;
+        String target = null;
+        try {
+            jaxbContext = JAXBContext.newInstance(DJMRelationships.class);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            djmRels = (DJMRelationships) jaxbUnmarshaller.unmarshal(is);
+
+            target = djmRels.getRelationships().stream().filter(x -> x.getId().equals(id)).findFirst().get().getTarget();
+        } catch (JAXBException ex) {
+            Logger.getLogger(DocxJM.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return target;
     }
 
     /**

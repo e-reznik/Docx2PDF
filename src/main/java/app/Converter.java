@@ -10,10 +10,12 @@ import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.action.PdfAction;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.ILeafElement;
 import com.itextpdf.layout.element.Image;
+import com.itextpdf.layout.element.Link;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
@@ -24,7 +26,6 @@ import docxjavamapper.model.DJMParagraph;
 import docxjavamapper.model.DJMRun;
 import docxjavamapper.model.DJMTable;
 import docxjavamapper.model.drawing.DJMAnchor;
-import docxjavamapper.model.interfaces.iBodyElement;
 import docxjavamapper.model.table.DJMTableCell;
 import docxjavamapper.model.table.DJMTableRow;
 import java.awt.image.BufferedImage;
@@ -91,7 +92,7 @@ public class Converter {
         pdfDocument = new PdfDocument(writer);
         pdfDoc = new Document(pdfDocument);
 
-        for (iBodyElement be : djmDoc.getBody().getBodyElements()) {
+        djmDoc.getBody().getBodyElements().forEach(be -> {
             if (be instanceof DJMParagraph) {
                 DJMParagraph djmp = (DJMParagraph) be;
                 pdfDoc.add(processParagraph(djmp));
@@ -99,7 +100,7 @@ public class Converter {
                 DJMTable djmt = (DJMTable) be;
                 pdfDoc.add(processTable(djmt));
             }
-        }
+        });
 
         try {
             pdfDocument.close();
@@ -127,7 +128,7 @@ public class Converter {
                 });
             } else if (pe instanceof DJMHyperlink) {
                 DJMHyperlink djmh = (DJMHyperlink) pe;
-                // TODO: processHyperlink()
+                paragraph.add(processHyperlink(djmh));
             }
         });
 
@@ -252,7 +253,7 @@ public class Converter {
      * @return
      */
     private Text setFontFamily(DJMRun djmr, Text text) {
-        if (djmr.getText() == null || djmr.getRunProperties().getFont() == null) {
+        if (djmr.getText() == null || djmr.getRunProperties().getFont().getValue() == null) {
             return text;
         }
 
@@ -368,5 +369,23 @@ public class Converter {
         image.setMarginLeft(posH);
 
         return image;
+    }
+
+    /**
+     * Processes a hyperlink.
+     *
+     * @param djmh
+     * @return
+     */
+    private Link processHyperlink(DJMHyperlink djmh) {
+        String id = djmh.getId();
+        Link link = null;
+        try {
+            String target = Helper.getHyperlink(docx, id);
+            link = new Link(djmh.getRun().getText(), PdfAction.createURI(target));
+        } catch (IOException ex) {
+            Logger.getLogger(Converter.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return link;
     }
 }
