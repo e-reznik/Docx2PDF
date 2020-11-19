@@ -1,4 +1,4 @@
-package app;
+package docx2pdf;
 
 import com.itextpdf.io.font.FontProgram;
 import com.itextpdf.io.font.FontProgramFactory;

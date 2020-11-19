@@ -1,4 +1,4 @@
-package app;
+package docx2pdf;
 
 import java.io.FileNotFoundException;
 import java.util.logging.Level;

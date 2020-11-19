@@ -2,9 +2,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mycompany</groupId>
-    <artifactId>DocxToPdfLow</artifactId>
+    <artifactId>docx2pdf</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>Docx2PDF2</name>
+    <name>Docx2PDF</name>
     <packaging>jar</packaging>
     
     <properties>
@@ -17,12 +17,12 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
+            <version>1.18.16</version>
         </dependency>
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itext7-core</artifactId>
-            <version>7.1.12</version>
+            <version>7.1.13</version>
             <type>pom</type>
         </dependency>
         <dependency>
@@ -32,7 +32,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>DocxJavaMapper</artifactId>
+            <artifactId>docxjavamapper</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
