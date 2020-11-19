@@ -14,6 +14,9 @@ Converter app = new Converter(docIn, docOut, fontsPath);
 // Converter app = new Converter(docIn, docOut, null);
 ```
 
+# Example GUI-Project
+An example project with a __JavaFX GUI__ can be found here: https://github.com/e-reznik/Docx2Pdf-Gui
+
 # Supported elements
 - text
   - formatting
