@@ -2,6 +2,10 @@
 Converts Docx-files based on OOXML (i.e. created with Microsoft Word 2007 or newer) into PDF.  
 First, the Docx-archive is read and mapped into POJOs with [DocxJavaMapper](https://github.com/e-reznik/DocxJavaMapper). For the final conversion iText7 is used.
 
+# See it in Action!
+
+https://github.com/e-reznik/Docx2Pdf-Gui-Swing/releases/download/v0.1-alpha/Docx2Pdf-Gui-Swing-1.0-SNAPSHOT.jar
+
 # Example usage
 ```java
 String docIn = "/home/user/docs/sample.docx";
