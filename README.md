@@ -19,7 +19,9 @@ Converter app = new Converter(docIn, docOut, fontsPath);
 ```
 
 # Example GUI-Project
-An example project with a __JavaFX GUI__ can be found here: https://github.com/e-reznik/Docx2Pdf-Gui
+
+- An example project with __Swing__ can be found here: https://github.com/e-reznik/Docx2Pdf-Gui-Swing
+- Another GUI made with __JavaFX GUI__ can be found here: https://github.com/e-reznik/Docx2Pdf-Gui
 
 # Supported elements
 - text
