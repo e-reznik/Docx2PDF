@@ -5,24 +5,24 @@ import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.io.font.constants.StandardFontFamilies;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
-import docxjavamapper.DocxJM;
 import docxjavamapper.model.relationships.DJMRelationships;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 class Helper {
 
-    private final static Logger LOGGER = Logger.getLogger(Helper.class.getName());
+    private static final Logger LOGGER = LogManager.getLogger(Helper.class);
 
     /**
      * Returns the stream to a document.xml from the DOCX-archive.
@@ -33,8 +33,7 @@ class Helper {
      */
     public static InputStream getDocument(File docx) throws IOException {
         ZipFile zipFile = new ZipFile(docx);
-        InputStream is = zipFile.getInputStream(zipFile.getEntry("word/document.xml"));
-        return is;
+        return zipFile.getInputStream(zipFile.getEntry("word/document.xml"));
     }
 
     /**
@@ -63,7 +62,7 @@ class Helper {
 
             target = djmRels.getRelationships().stream().filter(x -> x.getId().equals(id)).findFirst().get().getTarget();
         } catch (JAXBException ex) {
-            Logger.getLogger(DocxJM.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.error(ex);
         }
 
         return target;
@@ -80,8 +79,7 @@ class Helper {
     public static InputStream getImage(File docx, String name) throws IOException {
         ZipFile zipFile = new ZipFile(docx);
         // TODO: Load images dynamically (extension)
-        InputStream is = zipFile.getInputStream(zipFile.getEntry("word/media/" + name.toLowerCase() + ".png"));
-        return is;
+        return zipFile.getInputStream(zipFile.getEntry("word/media/" + name.toLowerCase() + ".png"));
     }
 
     /**
@@ -98,11 +96,12 @@ class Helper {
         try {
             fontProgram = FontProgramFactory.createFont(fontPath);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Font \"" + fontValue + "\" could not be found in " + fontsFolder);
+            LOGGER.warn("Font {0} could not be found in {1}.\n{2}", new Object[]{fontValue, fontsFolder, ex});
             try {
                 fontProgram = FontProgramFactory.createFont(StandardFontFamilies.HELVETICA);
             } catch (IOException ex2) {
-                LOGGER.log(Level.WARNING, "Neither the required Font \"" + fontValue + "\", nor the standard font Helvetica could be loaded.");
+                LOGGER.warn("Neither the required Font {0}, nor the standard font Helvetica could be loaded.\n{1}", new Object[]{fontValue, fontsFolder, ex});
+
             }
         }
 
@@ -125,7 +124,7 @@ class Helper {
 
         /* Color "auto" will be treated as black */
         if (hex.equals("auto")) {
-            color = new DeviceRgb(colorAwt.black);
+            color = new DeviceRgb(java.awt.Color.black);
         } else {
             /* Checks whether that color exists as constant in iText class */
             try {
@@ -141,7 +140,7 @@ class Helper {
                 int b = Integer.valueOf(hex.substring(4, 6), 16);
                 color = new DeviceRgb(r, g, b);
             } catch (IllegalArgumentException | IllegalAccessException ex) {
-                Logger.getLogger(Helper.class.getName()).log(Level.INFO, null, ex);
+                LOGGER.error(ex);
             }
         }
 

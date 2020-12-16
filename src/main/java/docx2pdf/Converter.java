@@ -44,7 +44,7 @@ import javax.imageio.ImageIO;
 
 public class Converter {
 
-    private final static Logger LOGGER = Logger.getLogger(Converter.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Converter.class.getName());
     private final File docx;
     private final String fontsFolder;
 
@@ -83,14 +83,10 @@ public class Converter {
     }
 
     public void convert(DJMDocument djmDoc, String docOut, String fontsFolder) throws FileNotFoundException, IOException {
-        OutputStream out;
-        out = new FileOutputStream(new File(docOut));
-        PdfDocument pdfDocument;
-        Document pdfDoc;
-
+        OutputStream out = new FileOutputStream(new File(docOut));
         PdfWriter writer = new PdfWriter(docOut);
-        pdfDocument = new PdfDocument(writer);
-        pdfDoc = new Document(pdfDocument);
+        PdfDocument pdfDocument = new PdfDocument(writer);
+        Document pdfDoc = new Document(pdfDocument);
 
         djmDoc.getBody().getBodyElements().forEach(be -> {
             if (be instanceof DJMParagraph) {
