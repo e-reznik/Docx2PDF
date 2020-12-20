@@ -6,21 +6,23 @@ import com.itextpdf.io.font.constants.StandardFontFamilies;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import docxjavamapper.model.relationships.DJMRelationships;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 class Helper {
+
+    private Helper() {
+    }
 
     private static final Logger LOGGER = LogManager.getLogger(Helper.class);
 
@@ -96,11 +98,11 @@ class Helper {
         try {
             fontProgram = FontProgramFactory.createFont(fontPath);
         } catch (IOException ex) {
-            LOGGER.warn("Font {0} could not be found in {1}.\n{2}", new Object[]{fontValue, fontsFolder, ex});
+            LOGGER.warn("Font {0} could not be found in {}.\n{}", fontValue, fontsFolder, ex);
             try {
                 fontProgram = FontProgramFactory.createFont(StandardFontFamilies.HELVETICA);
             } catch (IOException ex2) {
-                LOGGER.warn("Neither the required Font {0}, nor the standard font Helvetica could be loaded.\n{1}", new Object[]{fontValue, fontsFolder, ex});
+                LOGGER.warn("Neither the required Font {}, nor the standard font Helvetica could be loaded.\n{}", fontValue, fontsFolder, ex);
 
             }
         }

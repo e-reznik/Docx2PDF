@@ -4,7 +4,6 @@ import com.itextpdf.io.font.FontProgram;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.PdfException;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
@@ -32,10 +31,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -76,34 +73,27 @@ public class Converter {
             InputStream str = Helper.getDocument(docx);
             DJMDocument djmDoc = mapper.map(str);
 
-            convert(djmDoc, out, fontsFolder);
+            convert(djmDoc, out);
         } catch (IOException ex) {
             Logger.getLogger(Converter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public void convert(DJMDocument djmDoc, String docOut, String fontsFolder) throws FileNotFoundException, IOException {
-        OutputStream out = new FileOutputStream(new File(docOut));
-        PdfWriter writer = new PdfWriter(docOut);
-        PdfDocument pdfDocument = new PdfDocument(writer);
-        Document pdfDoc = new Document(pdfDocument);
+    public void convert(DJMDocument djmDoc, String docOut) throws IOException {
+        try (PdfWriter writer = new PdfWriter(docOut);
+                PdfDocument pdfDocument = new PdfDocument(writer);
+                Document pdfDoc = new Document(pdfDocument)) {
 
-        djmDoc.getBody().getBodyElements().forEach(be -> {
-            if (be instanceof DJMParagraph) {
-                DJMParagraph djmp = (DJMParagraph) be;
-                pdfDoc.add(processParagraph(djmp));
-            } else if (be instanceof DJMTable) {
-                DJMTable djmt = (DJMTable) be;
-                pdfDoc.add(processTable(djmt));
-            }
-        });
-
-        try {
-            pdfDocument.close();
-            pdfDoc.close();
-            out.close();
-        } catch (PdfException | IOException ex) {
-            LOGGER.log(Level.SEVERE, "Error while closing the PDF", ex);
+//            PdfDocument pdfDocument = new PdfDocument(writer);
+            djmDoc.getBody().getBodyElements().forEach(be -> {
+                if (be instanceof DJMParagraph) {
+                    DJMParagraph djmp = (DJMParagraph) be;
+                    pdfDoc.add(processParagraph(djmp));
+                } else if (be instanceof DJMTable) {
+                    DJMTable djmt = (DJMTable) be;
+                    pdfDoc.add(processTable(djmt));
+                }
+            });
         }
     }
 
@@ -198,19 +188,19 @@ public class Converter {
         }
         Text text = new Text(djmr.getText());
         /* Bold */
-        if (djmr.getRunProperties().isBold()) {
+        if (Boolean.TRUE.equals(djmr.getRunProperties().isBold())) {
             text.setBold();
         }
         /* Italic */
-        if (djmr.getRunProperties().isItalic()) {
+        if (Boolean.TRUE.equals(djmr.getRunProperties().isItalic())) {
             text.setItalic();
         }
         /* Underline */
-        if (djmr.getRunProperties().isUnderline()) {
+        if (Boolean.TRUE.equals(djmr.getRunProperties().isUnderline())) {
             text.setUnderline();
         }
         /* Strike-through */
-        if (djmr.getRunProperties().isStrike()) {
+        if (Boolean.TRUE.equals(djmr.getRunProperties().isStrike())) {
             text.setLineThrough();
         }
 
@@ -337,8 +327,8 @@ public class Converter {
         String name = anchor.getDocPr().getName(); // file name
         int posH = anchor.getPositionH().getPosOffset(); // x coordinate
         int posV = anchor.getPositionV().getPosOffset(); // y coordinate
-        int cx = anchor.getExtent().getCx(); // width
-        int cy = anchor.getExtent().getCy(); // height
+        float cx = anchor.getExtent().getCx(); // width
+        float cy = anchor.getExtent().getCy(); // height
 
         InputStream is = null;
         try {
