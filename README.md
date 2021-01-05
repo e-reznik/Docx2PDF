@@ -1,4 +1,7 @@
-![GitHub commit activity](https://img.shields.io/github/commit-activity/y/e-reznik/Docx2PDF) ![GitHub last commit](https://img.shields.io/github/last-commit/e-reznik/Docx2PDF)
+<p align="center">
+        <img src="https://img.shields.io/github/commit-activity/y/e-reznik/Docx2PDF" />
+        <img src="https://img.shields.io/github/last-commit/e-reznik/Docx2PDF" />
+</p>
 
 # Info
 Converts Docx-files based on OOXML (i.e. created with Microsoft Word 2007 or newer) into PDF.  
