@@ -1,4 +1,5 @@
 <p align="center">
+        <img src="https://github.com/e-reznik/Docx2PDF/workflows/Java%20CI%20with%20Maven/badge.svg" />
         <img src="https://img.shields.io/github/commit-activity/y/e-reznik/Docx2PDF" />
         <img src="https://img.shields.io/github/last-commit/e-reznik/Docx2PDF" />
 </p>
