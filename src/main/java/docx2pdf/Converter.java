@@ -241,7 +241,7 @@ public class Converter {
      * @return
      */
     private Text setFontFamily(DJMRun djmr, Text text) {
-        if (djmr.getText() == null || djmr.getRunProperties().getFont().getValue() == null) {
+        if (djmr.getText() == null || djmr.getRunProperties().getFont() == null || djmr.getRunProperties().getFont().getValue() == null) {
             return text;
         }
 
